@@ -16,7 +16,7 @@ export const getUsers = async(req, res) => {
 
 export const Register = async(req, res) => {
     if(req.files === null) return res.status(400).json({msg: "No Image Uploaded"});
-    const { name, email, password, confPassword } = req.body;
+    const { name, username, email, password, confPassword } = req.body;
     const file = req.files.file;
     const fileSize = file.data.length;
     const ext = path.extname(file.name);
@@ -36,6 +36,7 @@ export const Register = async(req, res) => {
         try {
             await Users.create({
                 name: name,
+                username: username,
                 email: email,
                 password: hashPassword,
                 photo: fileName, 
