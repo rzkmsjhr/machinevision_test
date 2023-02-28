@@ -1,12 +1,16 @@
-import Posts from "../models/PostModel.js";
-import Users from "../models/UserModel.js";
+import { Posts, Users } from "../models/index.js";
 import UserLiked from "../models/UserLiked.js";
 import path from "path";
 import fs from "fs";
 
 export const getPosts = async(req, res)=>{
     try {
-        const response = await Posts.findAll();
+        const response = await Posts.findAll({
+            include: [{
+              model: Users,
+              as: "users",
+             }]
+          })
         res.json(response);
     } catch (error) {
         console.log(error.message);
