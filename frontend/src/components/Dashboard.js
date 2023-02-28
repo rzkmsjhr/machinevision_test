@@ -3,6 +3,7 @@ import axios from 'axios';
 import jwt_decode from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Modal, Button, Form } from "react-bootstrap";
 
 
 const Dashboard = () => {
@@ -75,6 +76,49 @@ const Dashboard = () => {
         });
         setPosts(response.data);
     }
+    const [showModal, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    const [caption, setCaption] = useState('');
+    const [tags, setTags] = useState('');
+    const [file, setFile] = useState("");
+    const [preview, setPreview] = useState("");
+
+    const loadImage = (e) => {
+        const image = e.target.files[0];
+        setFile(image);
+        setPreview(URL.createObjectURL(image));
+      };
+
+    const createPost = async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("caption", caption);
+      formData.append("tags", tags);
+      formData.append("file", file);
+      try {
+          await axiosJWT.post('http://localhost:5000/posts', formData, {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "multipart/form-data"
+              }
+          }).then(res => {
+              if (res.status === 201)
+                  navigate(0);
+                  toast.success('Post Created', {
+                    position: toast.POSITION.TOP_RIGHT,
+
+                  });
+              });
+      } catch (error) {
+          if (error.response) {
+              toast.error(error.response.data.msg, {
+                  position: toast.POSITION.TOP_RIGHT
+                });
+          }
+      }
+  }
 
   return (
     <div class="container-fluid">
@@ -137,14 +181,75 @@ const Dashboard = () => {
             </div>
             </>
         ))}
-        
         </div>
      </div>
         
+     <button data-toggle="modal" data-target="#addpost" onClick={handleShow} type="button" class="btn btn-success rounded-circle position-fixed bottom-0 end-0 my-3 mx-4"><i class="fa fa-plus my-float"></i></button>
       
-
+      <div class="modal fade" id="addpost" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
     </main>
   </div>
+  <>
+      <Modal show={showModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Post</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={createPost}>
+        <Modal.Body>
+        
+        <div class="form-group">
+            <label for="email"></label>
+            <input required type="text" class="form-control" id="caption" aria-describedby="captionHelp" placeholder="Caption" value={caption} onChange={(e) => setCaption(e.target.value)}/>
+        </div>
+        <div class="form-group">
+            <label for="username"></label>
+            <input required type="text" class="form-control" id="tags" aria-describedby="tagsHelp" placeholder="Tags" value={tags} onChange={(e) => setTags(e.target.value)}/>
+        </div>
+        <div class="form-group mt-3">
+          <label for="image">Post Image</label>
+          <div class="custom-file mt-1">
+            <input type="file" class="custom-file-input" id="image" onChange={loadImage} />
+          </div>
+          {preview ? (
+            <figure className="figure-img rounded w-25 ">
+              <img alt='profile' id="imagePreview" class="img-thumbnail mt-2" src={preview}/>
+            </figure>
+          ) : (
+            ""
+          )}
+          
+        </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Modal.Footer>
+        </Form>
+        
+      </Modal>
+  </>
 </div>
 
   )
