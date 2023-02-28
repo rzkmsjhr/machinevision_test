@@ -9,7 +9,7 @@ go to backend folder
 from there you can start installing package, type:
 
     npm install
-create an `.env` files that contains:
+on root folder, create an `.env` files that contains:
 
 `ACCESS_TOKEN_SECRET =` your desirable access token
 
